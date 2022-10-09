@@ -7,16 +7,14 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 
-// "start": "node ./bin/www"
-// const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/fresh_grub_lk')
-// //const sequelize = new Sequelize('postgres://fawauotvwubhtm:47cb37a2c72a1d56375e836490f8c781ecd8011f1a5af11ed9b1550502de9cd5@ec2-3-219-19-205.compute-1.amazonaws.com:5432/d8ul24hse3bg9b');
+const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/fresh_grub_lk')
 
-// try {
-//   sequelize.authenticate();
-//   console.log('Connection has been established successfully.');
-// } catch (error) {
-//   console.error('Unable to connect to the database:', error);
-// }
+try {
+  sequelize.authenticate();
+  console.log('Connection has been established successfully.');
+} catch (error) {
+  console.error('Unable to connect to the database:', error);
+}
 
 var indexRouter = require('./routes/index');
 var customerRouter = require('./routes/customer');
