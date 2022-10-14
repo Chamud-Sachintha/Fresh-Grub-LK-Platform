@@ -35,4 +35,13 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+db.seller = require("./seller.js")(sequelize, Sequelize);
+db.restuarants = require("./restuarant.js")(sequelize, Sequelize);
+
+db.seller.hasMany(db.restuarants, { as: "restuarants" });
+db.restuarants.belongsTo(db.seller, {
+  foreignKey: "id",
+  as: "seller_id",
+});
+
 module.exports = db;

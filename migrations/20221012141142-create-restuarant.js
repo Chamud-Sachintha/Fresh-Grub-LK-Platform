@@ -2,20 +2,41 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('RegModels', {
+    await queryInterface.createTable('Restuarants', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      emailAddress: {
+      sellerId: {
+        type: Sequelize.INTEGER
+      },
+      restuarantName: {
         type: Sequelize.STRING
       },
-      userRole: {
+      description: {
         type: Sequelize.STRING
       },
-      password: {
+      imageFile: {
+        type: Sequelize.STRING.BINARY
+      },
+      addressLineFirst: {
+        type: Sequelize.STRING
+      },
+      addressLineSecond: {
+        type: Sequelize.STRING
+      },
+      city: {
+        type: Sequelize.STRING
+      },
+      state: {
+        type: Sequelize.STRING
+      },
+      landMobile: {
+        type: Sequelize.STRING
+      },
+      frontMobile: {
         type: Sequelize.STRING
       },
       createdAt: {
@@ -29,6 +50,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('RegModels');
+    await queryInterface.dropTable('Restuarants');
   }
 };
