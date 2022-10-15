@@ -7,6 +7,7 @@ const {
     addRestuarant, 
     getListOfRestuarants,
     findRestuarantsBySearchType,
+    findRestuarantByRestuarantId,
     getListOfRestuarantsBySellerId
 } = userController
 const userAuth = require('../middlewares/userAuth')
@@ -27,5 +28,7 @@ router.get('/restuarants', getListOfRestuarants)
 router.get('/restuarantsById/search', getListOfRestuarantsBySellerId)
 
 router.get('/restuarantsByType/search', findRestuarantsBySearchType)
+
+router.get('/restuarant/search', findRestuarantByRestuarantId)
 
 module.exports = router

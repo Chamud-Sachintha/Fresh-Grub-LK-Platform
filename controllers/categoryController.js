@@ -22,6 +22,19 @@ const addNewCategory = async (req, res, next) => {
     }
 }
 
+const getAllCategories = async (req, res, next) => {
+    try {
+        const categoryDetails = await Category.findAll();
+
+        if (categoryDetails) {
+            res.send(categoryDetails);
+        }
+    } catch(err) {
+        console.log(err)
+    }
+}
+
 module.exports = {
-    addNewCategory
+    addNewCategory,
+    getAllCategories
 }

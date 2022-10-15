@@ -136,11 +136,28 @@ const getListOfRestuarants = async (req, res, next) => {
     }
 }
 
+const findRestuarantByRestuarantId = async (req, res, next) => {
+    try {   
+        const restuarantDetails = await Restuarant.findAll({
+            where:{
+                id: req.query.restuarantId
+            }
+        })
+
+        if (restuarantDetails) {
+            return res.send(restuarantDetails)
+        }
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     signUp,
     login,
     addRestuarant,
     getListOfRestuarants,
     getListOfRestuarantsBySellerId,
+    findRestuarantByRestuarantId,
     findRestuarantsBySearchType
 };
