@@ -1,3 +1,6 @@
+const { QueryTypes,Sequelize } = require('sequelize');
+const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/fresh_grub_lk')
+
 const bcrypt = require("bcrypt");
 const db = require("../models");
 const jwt = require("jsonwebtoken");
@@ -79,6 +82,24 @@ const login = async (req, res) => {
     }
 };
 
+const getCategoriesOfSelectedRestuarant = async (req, res, next) => {
+    try {
+        const getcategoriesOfrestuarant = await sequelize.query(
+            'SELECT * FROM "public"."Categories" WHERE "public"."Categories"."id" IN (SELECT DISTINCT "public"."Eatables"."categoryId" FROM "public"."Eatables" WHERE "public"."Eatables"."id" IN (SELECT "public"."RetuarantEatabls"."eatableId" FROM "public"."RetuarantEatabls" WHERE "public"."RetuarantEatabls"."restuarantId" = :restuarantId))',
+            {
+                replacements: { restuarantId: req.query.restuarantId },
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if (getcategoriesOfrestuarant) {
+            res.send(getcategoriesOfrestuarant);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 const test = async (req, res, next) => {
     res.send("hellow");
 }
@@ -86,5 +107,6 @@ const test = async (req, res, next) => {
 module.exports = {
     signup,
     login,
-    test
+    test,
+    getCategoriesOfSelectedRestuarant
 };

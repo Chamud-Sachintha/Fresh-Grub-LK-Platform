@@ -8,10 +8,25 @@ var logger = require('morgan');
 var cors = require('cors');
 var dotenv = require('dotenv').config();
 
+const asciiGen = `
+________                             __               ______                       __              __        __    __       
+/        |                           /  |             /      \                     /  |            /  |      /  |  /  |      
+$$$$$$$$/______    ______    _______ $$ |____        /$$$$$$  |  ______   __    __ $$ |____        $$ |      $$ | /$$/       
+$$ |__  /      \  /      \  /       |$$      \       $$ | _$$/  /      \ /  |  /  |$$      \       $$ |      $$ |/$$/        
+$$    |/$$$$$$  |/$$$$$$  |/$$$$$$$/ $$$$$$$  |      $$ |/    |/$$$$$$  |$$ |  $$ |$$$$$$$  |      $$ |      $$  $$<         
+$$$$$/ $$ |  $$/ $$    $$ |$$      \ $$ |  $$ |      $$ |$$$$ |$$ |  $$/ $$ |  $$ |$$ |  $$ |      $$ |      $$$$$  \        
+$$ |   $$ |      $$$$$$$$/  $$$$$$  |$$ |  $$ |      $$ \__$$ |$$ |      $$ \__$$ |$$ |__$$ |      $$ |_____ $$ |$$  \       
+$$ |   $$ |      $$       |/     $$/ $$ |  $$ |      $$    $$/ $$ |      $$    $$/ $$    $$/       $$       |$$ | $$  |      
+$$/    $$/        $$$$$$$/ $$$$$$$/  $$/   $$/        $$$$$$/  $$/        $$$$$$/  $$$$$$$/        $$$$$$$$/ $$/   $$/       
+                                                                                                                            
+                                                                                                                            
+                                                                                                                            
+`;
 const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/fresh_grub_lk')
 
 try {
   sequelize.authenticate();
+  console.log(asciiGen);
   console.log('Connection has been established successfully.');
 } catch (error) {
   console.error('Unable to connect to the database:', error);
@@ -21,6 +36,7 @@ var indexRouter = require('./routes/index');
 var customerRouter = require('./routes/customer');
 var sellerRouter = require('./routes/seller');
 var categoryRouter = require('./routes/category');
+var eatableRouter = require('./routes/eatable');
 
 var app = express();
 
@@ -44,6 +60,7 @@ app.use('/', indexRouter);
 app.use('/customer', customerRouter);
 app.use('/seller', sellerRouter);
 app.use('/category', categoryRouter);
+app.use('/eatable', eatableRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

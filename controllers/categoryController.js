@@ -5,6 +5,7 @@ const Category = db.Category
 const addNewCategory = async (req, res, next) => {
     try {
         const getRequestData = {
+            sellerId: req.body.sellerId,
             categoryName: req.body.categoryName,
             categoryDescription: req.body.categoryDescription,
             categoryImage: req.body.categoryImage
@@ -34,7 +35,24 @@ const getAllCategories = async (req, res, next) => {
     }
 }
 
+const getAllCategoryBySellerId = async (req, res, next) => {
+    try {
+        const categoryDetails = await Category.findAll({
+            where: {
+                sellerId: req.query.sellerId
+            }
+        })
+
+        if (categoryDetails) {
+            res.send(categoryDetails)
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     addNewCategory,
-    getAllCategories
+    getAllCategories,
+    getAllCategoryBySellerId
 }

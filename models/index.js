@@ -36,12 +36,26 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 db.seller = require("./seller.js")(sequelize, Sequelize);
+db.categories = require("./category.js")(sequelize, Sequelize);
 db.restuarants = require("./restuarant.js")(sequelize, Sequelize);
+db.eatables = require("./eatable.js")(sequelize, Sequelize);
 
 db.seller.hasMany(db.restuarants, { as: "restuarants" });
 db.restuarants.belongsTo(db.seller, {
   foreignKey: "id",
   as: "seller_id",
+});
+
+db.seller.hasMany(db.categories, { as: "categories" });
+db.categories.belongsTo(db.seller, {
+  foreignKey: "id",
+  as: "seller_id",
+});
+
+db.categories.hasMany(db.eatables, { as: "eatables" });
+db.eatables.belongsTo(db.categories, {
+  foreignKey: "id",
+  as: "category_id",
 });
 
 module.exports = db;
