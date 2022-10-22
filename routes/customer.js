@@ -5,9 +5,16 @@ const jwtValidator = require('../middlewares/validJWTValidator')
 const { 
     signup, 
     login, 
-    getCategoriesOfSelectedRestuarant, 
+    getCategoriesOfSelectedRestuarant,
     test 
 } = userController
+
+const cartController = require('../controllers/cartController')
+const { 
+    addSelectedEatablesToCart,
+    getAllCartItemsByCustomer
+} = cartController
+
 const userAuth = require('../middlewares/userAuth')
 
 const router = express.Router()
@@ -20,6 +27,10 @@ router.post('/signup', userAuth.saveUser, signup)
 router.post('/login', login )
 
 router.get('/getCategoriesOfSelectedRestuarant', getCategoriesOfSelectedRestuarant)
+
+router.post('/addToCart', addSelectedEatablesToCart)
+
+router.get('/getAllCartItemsByCustomer/search', getAllCartItemsByCustomer)
 
 router.get('/jj', jwtValidator.validJWTNeeded, test)
 
