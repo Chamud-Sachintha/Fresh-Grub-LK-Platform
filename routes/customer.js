@@ -15,6 +15,11 @@ const {
     getAllCartItemsByCustomer
 } = cartController
 
+const orderController = require('../controllers/orderController')
+const {
+    placeNewOrderDetailsByCustomer
+} = orderController
+
 const userAuth = require('../middlewares/userAuth')
 
 const router = express.Router()
@@ -31,6 +36,8 @@ router.get('/getCategoriesOfSelectedRestuarant', getCategoriesOfSelectedRestuara
 router.post('/addToCart', addSelectedEatablesToCart)
 
 router.get('/getAllCartItemsByCustomer/search', getAllCartItemsByCustomer)
+
+router.post('/placeOrder', placeNewOrderDetailsByCustomer)
 
 router.get('/jj', jwtValidator.validJWTNeeded, test)
 
