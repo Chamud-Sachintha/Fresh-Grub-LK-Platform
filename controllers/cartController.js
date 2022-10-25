@@ -5,15 +5,16 @@ const db = require("../models");
 const Cart = db.Cart;
 const CartItem = db.CartItems;
 
-const getAllCartItemsByCustomer = async (req, res, next) => {
+const getAllCartItemsByCustomerAndEachCart = async (req, res, next) => {
     try {
         const userId = req.query.userId;
+        const restuarantId = req.query.restuarantId;
 
         if (userId) {
             const getAllCartItemsByCustomer = await sequelize.query(
-                'SELECT * FROM "public"."Eatables" JOIN "public"."CartItems" ON "public"."Eatables"."id" = "public"."CartItems"."eatableId" JOIN "public"."Categories" ON "public"."Eatables"."categoryId" = "public"."Categories"."id" JOIN "public"."Carts" ON "public"."Carts"."userId" = :userId',
+                'select * from "public"."Carts" join "public"."CartItems" on "public"."Carts"."id" = "public"."CartItems"."cartId" and "public"."Carts"."userId" = :userId and "public"."Carts"."restuarantId" = :restuarantId join "public"."Eatables" on "public"."Eatables"."id" = "public"."CartItems"."eatableId";',
                 {
-                    replacements: { userId: userId },
+                    replacements: { userId: userId, restuarantId: restuarantId },
                     type: QueryTypes.SELECT
                 }
             );
@@ -27,36 +28,57 @@ const getAllCartItemsByCustomer = async (req, res, next) => {
     }
 }
 
-const addSelectedEatablesToCart = async (req, res, next) => {
+const getAllCartsByCustomerId = async (req, res, next) => {
     try {
-        const userId = req.body.userId;
+        const userId = req.query.userId;
 
-        if (await validateUserCartExist(userId) === true) {
-            initializeUserCartdetailsTable(userId)
-        } else {
-            const getCartId = await getSelectedCartIdFromUserId(userId)
-
-            const dataValues = {
-                cartId: getCartId.dataValues.cartId,
-                eatableId: req.body.eatableId,
-                quantity: req.body.eatableQuantity
+        const availableCartsByCustomer = await sequelize.query(
+            'SELECT * FROM "public"."Carts" join "public"."Restuarants" ON "public"."Carts"."restuarantId" = "public"."Restuarants"."id" WHERE "public"."Carts"."userId" = :userId',
+            {
+                replacements: { userId: userId },
+                type: QueryTypes.SELECT
             }
+        );
 
-            const createCartItem = await CartItem.create(dataValues)
-
-            if (createCartItem) {
-                res.send(createCartItem);
-            }
+        if (availableCartsByCustomer) {
+            res.send(availableCartsByCustomer);
         }
     } catch (err) {
         console.log(err);
     }
 }
 
-async function initializeUserCartdetailsTable(validatorId) {
+const addSelectedEatablesToCart = async (req, res, next) => {
+    try {
+        const userId = req.body.userId;
+        const restuarantId = req.body.restuarantId;
+
+        if (await validateUserCartExist(userId,restuarantId) === true) {
+            await initializeUserCartdetailsTable(userId,restuarantId)
+        } 
+        const getCartId = await getSelectedCartIdFromUserId(userId,restuarantId)
+
+        const dataValues = {
+            cartId: getCartId.dataValues.cartId,
+            eatableId: req.body.eatableId,
+            quantity: req.body.eatableQuantity
+        }
+
+        const createCartItem = await CartItem.create(dataValues)
+
+        if (createCartItem) {
+            res.send(createCartItem);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+async function initializeUserCartdetailsTable(validatorId,restuarantId) {
     try {
         const data = {
-            userId: validatorId
+            userId: validatorId,
+            restuarantId: restuarantId
         }
         const initializeUserCart = await Cart.create(data)
 
@@ -70,11 +92,12 @@ async function initializeUserCartdetailsTable(validatorId) {
     }
 }
 
-async function validateUserCartExist(validatorId) {
+async function validateUserCartExist(validatorId,restuarantId) {
     try {
         const getCartDetails = await Cart.findOne({
             where: {
-                userId: validatorId
+                userId: validatorId,
+                restuarantId: restuarantId
             }
         })
 
@@ -86,12 +109,13 @@ async function validateUserCartExist(validatorId) {
     }
 }
 
-async function getSelectedCartIdFromUserId(validatorId) {
+async function getSelectedCartIdFromUserId(validatorId,restuarantId) {
     try {
         const getCartId = await Cart.findOne({
             attributes: [['id', 'cartId']],
             where:{
-                userId: validatorId
+                userId: validatorId,
+                restuarantId: restuarantId
             }
         })
 
@@ -107,5 +131,6 @@ async function getSelectedCartIdFromUserId(validatorId) {
 
 module.exports = {
     addSelectedEatablesToCart,
-    getAllCartItemsByCustomer
+    getAllCartsByCustomerId,
+    getAllCartItemsByCustomerAndEachCart
 }

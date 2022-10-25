@@ -15,6 +15,12 @@ module.exports = {
       subTotal: {
         type: Sequelize.DOUBLE
       },
+      orderStatus: {
+        type: Sequelize.STRING
+      },
+      restuarantId: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

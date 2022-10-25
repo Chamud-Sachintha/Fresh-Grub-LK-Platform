@@ -12,12 +12,14 @@ const {
 const cartController = require('../controllers/cartController')
 const { 
     addSelectedEatablesToCart,
-    getAllCartItemsByCustomer
+    getAllCartItemsByCustomerAndEachCart,
+    getAllCartsByCustomerId
 } = cartController
 
 const orderController = require('../controllers/orderController')
 const {
-    placeNewOrderDetailsByCustomer
+    placeNewOrderDetailsByCustomer,
+    getAllOrdersByCustomerId
 } = orderController
 
 const userAuth = require('../middlewares/userAuth')
@@ -35,9 +37,13 @@ router.get('/getCategoriesOfSelectedRestuarant', getCategoriesOfSelectedRestuara
 
 router.post('/addToCart', addSelectedEatablesToCart)
 
-router.get('/getAllCartItemsByCustomer/search', getAllCartItemsByCustomer)
+router.get('/getAllCartsByCustomerId/search', getAllCartsByCustomerId)
+
+router.get('/getAllCartItemsByCustomerAndEachCart/search', getAllCartItemsByCustomerAndEachCart)
 
 router.post('/placeOrder', placeNewOrderDetailsByCustomer)
+
+router.get('/getAllOrdersByCustomer', getAllOrdersByCustomerId)
 
 router.get('/jj', jwtValidator.validJWTNeeded, test)
 

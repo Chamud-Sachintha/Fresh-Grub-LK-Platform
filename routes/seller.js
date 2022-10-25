@@ -10,6 +10,12 @@ const {
     findRestuarantByRestuarantId,
     getListOfRestuarantsBySellerId
 } = userController
+
+const orderController = require('../controllers/orderController')
+const {
+    getOrderRequestsByEachSeller,
+    getEachEatablesByOrderedRestuarant,
+} = orderController
 const userAuth = require('../middlewares/userAuth')
 const validator = require("../middlewares/validatoer")
 const router = express.Router()
@@ -30,5 +36,9 @@ router.get('/restuarantsById/search', getListOfRestuarantsBySellerId)
 router.get('/restuarantsByType/search', findRestuarantsBySearchType)
 
 router.get('/restuarant/search', findRestuarantByRestuarantId)
+
+router.get('/order-requests/search', getOrderRequestsByEachSeller)
+
+router.get('/manage-order/search', getEachEatablesByOrderedRestuarant)
 
 module.exports = router
