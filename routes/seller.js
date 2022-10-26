@@ -8,13 +8,17 @@ const {
     getListOfRestuarants,
     findRestuarantsBySearchType,
     findRestuarantByRestuarantId,
-    getListOfRestuarantsBySellerId
+    getListOfRestuarantsBySellerId,
+    updateRestuarantrByRestuarantId,
+    deleteSelectedRestuarantByRestuarantId
 } = userController
 
 const orderController = require('../controllers/orderController')
 const {
     getOrderRequestsByEachSeller,
     getEachEatablesByOrderedRestuarant,
+    getOnGoingOrderRequestByEachSeller,
+    updateOrderStatusByrestuarantId
 } = orderController
 const userAuth = require('../middlewares/userAuth')
 const validator = require("../middlewares/validatoer")
@@ -40,5 +44,13 @@ router.get('/restuarant/search', findRestuarantByRestuarantId)
 router.get('/order-requests/search', getOrderRequestsByEachSeller)
 
 router.get('/manage-order/search', getEachEatablesByOrderedRestuarant)
+
+router.get('/manage-order/updateOrderStatus', updateOrderStatusByrestuarantId)
+
+router.get('/order-requests/ongoing/search', getOnGoingOrderRequestByEachSeller)
+
+router.put('/update-restuarant', updateRestuarantrByRestuarantId)
+
+router.get('/delete-restuarant', deleteSelectedRestuarantByRestuarantId)
 
 module.exports = router

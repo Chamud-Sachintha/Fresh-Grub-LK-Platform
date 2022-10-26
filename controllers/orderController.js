@@ -7,15 +7,38 @@ const OrderDetails = db.OrderDetails;
 const Cart = db.Cart;
 const CartItem = db.CartItems;
 
+const updateOrderStatusByrestuarantId = async (req, res, next) => {
+    try {
+        const orderId = req.query.orderId;
+        const orderStatus = req.query.orderStatus;
+
+        const updateOrderStatus = await Order.update(
+            {
+                orderStatus: orderStatus
+            },
+            {
+                where: {
+                    id: orderId
+                }
+            }
+        );
+
+        if (updateOrderStatus) {
+            res.send("Operation Complete Successfully.");
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 const getEachEatablesByOrderedRestuarant = async (req, res, next) => {
     try {
-        const userId = req.query.userId;
-        const restuarantId = req.query.restuarantId;
+        const orderId = req.query.orderId
 
-        const getSelectedEatablesByRestuarant = sequelize.query(
-            'select * from "public"."Eatables" join "public"."RetuarantEatabls" on "public"."Eatables"."id" = "public"."RetuarantEatabls"."eatableId" join "public"."OrderDetails" on "public"."RetuarantEatabls"."eatableId" = "public"."OrderDetails"."eatableId" join "public"."Orders" on "public"."Orders"."id" = "public"."OrderDetails"."orderId" where "public"."Orders"."userId" = :userId and "public"."Orders"."restuarantId" = :restuarantId',
+        const getSelectedEatablesByRestuarant = await sequelize.query(
+            'select * from "public"."Eatables" join "public"."RetuarantEatabls" on "public"."Eatables"."id" = "public"."RetuarantEatabls"."eatableId" join "public"."OrderDetails" on "public"."RetuarantEatabls"."eatableId" = "public"."OrderDetails"."eatableId" join "public"."Orders" on "public"."Orders"."id" = "public"."OrderDetails"."orderId" where "public"."OrderDetails"."orderId" = :orderId',
             {
-                replacements: { userId: userId, restuarantId: restuarantId },
+                replacements: { orderId: orderId },
                 type: QueryTypes.SELECT
             }
         );
@@ -32,16 +55,36 @@ const getOrderRequestsByEachSeller = async (req, res, next) => {
     try {
         const sellerId = req.query.sellerId;
 
-        const getAllEatablesBySeller = await sequelize.query(
-            'SELECT DISTINCT("public"."Restuarants"."restuarantName"),"public"."Restuarants"."imageFile", "public"."Orders"."subTotal", "public"."Orders"."orderStatus", "public"."Restuarants"."id" AS "RestuarantId" FROM "public"."Orders" join "public"."OrderDetails" ON "public"."Orders"."id" = "public"."OrderDetails"."orderId" JOIN "public"."RetuarantEatabls" ON "public"."RetuarantEatabls"."eatableId" = "public"."OrderDetails"."eatableId" JOIN "public"."Restuarants" ON "public"."Restuarants"."id" = "public"."RetuarantEatabls"."restuarantId" WHERE "public"."Restuarants"."sellerId" = :sellerId',
+        const getAllOrderRequestBySeller = await sequelize.query(
+            'SELECT DISTINCT("public"."Restuarants"."restuarantName"),"public"."Restuarants"."imageFile", "public"."Orders"."subTotal", "public"."Orders"."orderStatus", "public"."Restuarants"."id" AS "RestuarantId" FROM "public"."Orders" join "public"."OrderDetails" ON "public"."Orders"."id" = "public"."OrderDetails"."orderId" JOIN "public"."RetuarantEatabls" ON "public"."RetuarantEatabls"."eatableId" = "public"."OrderDetails"."eatableId" JOIN "public"."Restuarants" ON "public"."Restuarants"."id" = "public"."RetuarantEatabls"."restuarantId" WHERE "public"."Restuarants"."sellerId" = :sellerId AND "public"."Orders"."orderStatus" = :orderStatus',
             {
-                replacements: { sellerId: sellerId },
+                replacements: { sellerId: sellerId, orderStatus: "PEN" },
                 type: QueryTypes.SELECT
             }
         );
 
-        if (getAllEatablesBySeller) {
-            res.send(getAllEatablesBySeller);
+        if (getAllOrderRequestBySeller) {
+            res.send(getAllOrderRequestBySeller);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const getOnGoingOrderRequestByEachSeller = async (req, res, next) => {
+    try {
+        const sellerId = req.query.sellerId;
+
+        const getAllOnGoingOrdersBySeller = await sequelize.query(
+            'SELECT DISTINCT("public"."Restuarants"."restuarantName"),"public"."Restuarants"."imageFile", "public"."Orders"."subTotal", "public"."Orders"."orderStatus", "public"."Restuarants"."id" AS "RestuarantId", "public"."OrderDetails"."orderId" FROM "public"."Orders" join "public"."OrderDetails" ON "public"."Orders"."id" = "public"."OrderDetails"."orderId" JOIN "public"."RetuarantEatabls" ON "public"."RetuarantEatabls"."eatableId" = "public"."OrderDetails"."eatableId" JOIN "public"."Restuarants" ON "public"."Restuarants"."id" = "public"."RetuarantEatabls"."restuarantId" WHERE "public"."Restuarants"."sellerId" = :sellerId AND "public"."Orders"."orderStatus" = :orderStatus',
+            {
+                replacements: { sellerId: sellerId, orderStatus: "PRE" },
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if (getAllOnGoingOrdersBySeller) {
+            res.send(getAllOnGoingOrdersBySeller);
         }
     } catch (err) {
         console.log(err);
@@ -145,7 +188,8 @@ async function initializeNewOrderPlacement(initializeCustomerId, orderTotalAmoun
         const checkIfOrderExist = await Order.findOne({
             where: {
                 userId: initializeCustomerId,
-                restuarantId: restuarantId
+                restuarantId: restuarantId,
+                orderStatus: "PEN"
             }
         });
 
@@ -205,5 +249,7 @@ module.exports = {
     placeNewOrderDetailsByCustomer,
     getOrderRequestsByEachSeller,
     getEachEatablesByOrderedRestuarant,
+    updateOrderStatusByrestuarantId,
+    getOnGoingOrderRequestByEachSeller,
     getAllOrdersByCustomerId
 }

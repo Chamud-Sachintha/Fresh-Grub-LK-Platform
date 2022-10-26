@@ -1,3 +1,6 @@
+const { QueryTypes,Sequelize } = require('sequelize');
+const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/fresh_grub_lk')
+
 const bycrypt = require('bcrypt')
 const db = require("../models")
 const jwt = require('jsonwebtoken')
@@ -62,6 +65,53 @@ const login = async (req, res) => {
         } else {
             return res.status(401).send("Authentication failed");
         }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const updateRestuarantrByRestuarantId = async (req, res, next) => {
+    try {
+        const restuarantId = req.query.restuarantId;
+
+        const updateRestuarantDetails = await Restuarant.update(
+            { 
+                sellerId: parseInt(req.body.sellerId),
+                restuarantName: req.body.restuarantName,
+                description: req.body.restuarantDescription,
+                imageFile: req.body.featuredImage,
+                addressLineFirst: req.body.firstAddressLine,
+                addressLineSecond: req.body.secondAddressLine,
+                city: req.body.city,
+                state: req.body.state,
+                landMobile: req.body.lanLine,
+                frontMobile: req.body.mobileNumber
+            },
+            { 
+                where: 
+                { 
+                    id: restuarantId 
+                } 
+            }
+        )
+
+        if (updateRestuarantDetails) {
+            res.send(updateRestuarantDetails);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const deleteSelectedRestuarantByRestuarantId = async (req, res, next) => {
+    try {
+        const restuarantId = req.query.restuarantId;
+
+        const deleteRestuarantById = await Restuarant.destroy({
+            where: {
+                id: restuarantId
+            }
+        })
     } catch (err) {
         console.log(err);
     }
@@ -159,5 +209,7 @@ module.exports = {
     getListOfRestuarants,
     getListOfRestuarantsBySellerId,
     findRestuarantByRestuarantId,
-    findRestuarantsBySearchType
+    updateRestuarantrByRestuarantId,
+    findRestuarantsBySearchType,
+    deleteSelectedRestuarantByRestuarantId
 };
