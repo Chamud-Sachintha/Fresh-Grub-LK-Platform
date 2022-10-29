@@ -3,10 +3,12 @@ const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/fresh_g
 
 const bycrypt = require('bcrypt')
 const db = require("../models")
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { eatables } = require('../models');
 
 const Seller = db.Seller
 const Restuarant = db.Restuarant
+const Eatable = db.Eatable;
 
 const signUp = async (req, res, next) => {
     try {
@@ -112,6 +114,28 @@ const deleteSelectedRestuarantByRestuarantId = async (req, res, next) => {
                 id: restuarantId
             }
         })
+
+        if (deleteRestuarantById) {
+            const deleteCascadeEatablesByRestuarantId = await sequelize.query(
+                'DELETE FROM "public"."Eatables" WHERE "public"."Eatables"."id" IN (SELECT "public"."RetuarantEatabls"."eatableId" FROM "public"."RetuarantEatabls" WHERE "public"."RetuarantEatabls"."restuarantId" = :restuarantId)',
+                {
+                    replacements: { restuarantId: restuarantId },
+                    type: QueryTypes.DELETE
+                }
+            );
+
+            const deleteRelationTableValuesByRestuarantId = await sequelize.query(
+                'DELETE FROM "public"."RetuarantEatabls" WHERE "public"."RetuarantEatabls"."restuarantId" = :restuarantId',
+                {
+                    replacements: { restuarantId: restuarantId },
+                    type: QueryTypes.DELETE
+                }
+            );
+
+            if (deleteCascadeEatablesByRestuarantId && deleteRelationTableValuesByRestuarantId) {
+                return res.status(201).send("Operation Complete Successfully.");
+            }
+        }
     } catch (err) {
         console.log(err);
     }

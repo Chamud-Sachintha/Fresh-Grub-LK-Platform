@@ -57,7 +57,7 @@ async function createRestuarantEatableAssociate(postCategoryDetails, restuarantI
 const getAllEatablesBySellerId = async (req, res, next) => {
     try {
         const getAllEatablesBySeller = await sequelize.query(
-            'SELECT * FROM "public"."Eatables" WHERE "public"."Eatables"."categoryId" IN (SELECT "public"."Categories"."id" FROM "public"."Categories" WHERE "public"."Categories"."sellerId" = :sellerId)',
+            'SELECT * FROM "public"."Eatables" join "public"."Categories" ON "public"."Eatables"."categoryId" =  "public"."Categories"."id" WHERE "public"."Eatables"."categoryId" IN (SELECT "public"."Categories"."id" FROM "public"."Categories" WHERE "public"."Categories"."sellerId" = :sellerId)',
             {
                 replacements: { sellerId: req.query.sellerId },
                 type: QueryTypes.SELECT

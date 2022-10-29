@@ -3,7 +3,10 @@ const categoryController = require('../controllers/categoryController')
 const { 
     addNewCategory,
     getAllCategories,
-    getAllCategoryBySellerId
+    getAllCategoryBySellerId,
+    getAllCategoryByCategoryId,
+    updateCategoryDetailsByCategoryId,
+    deleteCategorydetailsByCategoryId
 } = categoryController
 const router = express.Router()
 
@@ -13,5 +16,10 @@ router.get('/getAllCategories', getAllCategories)
 
 router.get('/categoriesBySellerId', getAllCategoryBySellerId)
 
+router.get('/categoriesByCategoryId', getAllCategoryByCategoryId)
+
+router.put('/updateCategoryDetailsByCategoryId', updateCategoryDetailsByCategoryId)
+
+router.get('/deleteCategorydetailsByCategoryId', deleteCategorydetailsByCategoryId)
 
 module.exports =  router 

@@ -1,6 +1,7 @@
 const db = require("../models")
 
 const Category = db.Category
+const Eatable = db.Eatable
 
 const addNewCategory = async (req, res, next) => {
     try {
@@ -51,8 +52,84 @@ const getAllCategoryBySellerId = async (req, res, next) => {
     }
 }
 
+const getAllCategoryByCategoryId = async (req, res, next) => {
+    try {
+        const getSingleCategoryByCategoryId = await Category.findAll({
+            where:{
+                id: req.query.categoryId
+            }
+        })
+
+        if (getSingleCategoryByCategoryId) {
+            res.send(getSingleCategoryByCategoryId)
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const updateCategoryDetailsByCategoryId = async (req, res, next) => {
+    try {
+        const categoryId = req.query.categoryId;
+
+        const updateCategoryDetailsByCategoryId = await Category.update(
+            {
+                sellerId: req.body.sellerId,
+                categoryName: req.body.categoryName,
+                categoryDescription: req.body.categoryDescription,
+                categoryImage: req.body.categoryImage
+            },
+            {
+                where: {
+                    id: categoryId
+                }
+            }
+        )
+
+        if (updateCategoryDetailsByCategoryId) {
+            res.send("Operation Complete.");
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const deleteCategorydetailsByCategoryId = async (req, res, next) => {
+    try {
+        const categoryId = req.query.categoryId;
+
+        const deleteCategoryDetailsByCategoryId = await Category.destroy({
+            where: {
+                id: categoryId
+            }
+        })
+
+        if (deleteCategoryDetailsByCategoryId) {
+            const updateCascadeEatableCategories = await Eatable.update(
+                {
+                    categoryId: 0
+                },
+                {
+                    where: {
+                        categoryId: categoryId
+                    }
+                }
+            )
+
+            if (updateCascadeEatableCategories) {
+                res.send("Operation Coimplete.");
+            }
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     addNewCategory,
     getAllCategories,
-    getAllCategoryBySellerId
+    getAllCategoryBySellerId,
+    getAllCategoryByCategoryId,
+    updateCategoryDetailsByCategoryId,
+    deleteCategorydetailsByCategoryId
 }
