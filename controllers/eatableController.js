@@ -57,7 +57,7 @@ async function createRestuarantEatableAssociate(postCategoryDetails, restuarantI
 const getAllEatablesBySellerId = async (req, res, next) => {
     try {
         const getAllEatablesBySeller = await sequelize.query(
-            'SELECT * FROM "public"."Eatables" join "public"."Categories" ON "public"."Eatables"."categoryId" =  "public"."Categories"."id" WHERE "public"."Eatables"."categoryId" IN (SELECT "public"."Categories"."id" FROM "public"."Categories" WHERE "public"."Categories"."sellerId" = :sellerId)',
+            'SELECT "public"."Eatables"."id","public"."Eatables"."eatableName","public"."Eatables"."eatablePrice","public"."Eatables"."eatableDescription","public"."Eatables"."eatableFeaturedImage","public"."Categories"."categoryName"  FROM "public"."Eatables" join "public"."Categories" ON "public"."Eatables"."categoryId" =  "public"."Categories"."id" WHERE "public"."Eatables"."categoryId" IN (SELECT "public"."Categories"."id" FROM "public"."Categories" WHERE "public"."Categories"."sellerId" = :sellerId)',
             {
                 replacements: { sellerId: req.query.sellerId },
                 type: QueryTypes.SELECT
@@ -90,8 +90,25 @@ const getEatablesBelongsToRestuarant = async (req, res, next) => {
     }
 }
 
+const getEatableDetailsByEatableId = async (req, res, next) => {
+    try {
+        const getSelectedEatableDetails = await Eatable.findAll({
+            where: {
+                id: req.query.eatableId
+            }
+        })
+
+        if (getSelectedEatableDetails) {
+            res.send(getSelectedEatableDetails);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     addNewEatable,
     getAllEatablesBySellerId,
-    getEatablesBelongsToRestuarant
+    getEatablesBelongsToRestuarant,
+    getEatableDetailsByEatableId
 }

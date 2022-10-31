@@ -84,8 +84,7 @@ const updateRestuarantrByRestuarantId = async (req, res, next) => {
                 imageFile: req.body.featuredImage,
                 addressLineFirst: req.body.firstAddressLine,
                 addressLineSecond: req.body.secondAddressLine,
-                city: req.body.city,
-                state: req.body.state,
+                location: req.body.location,
                 landMobile: req.body.lanLine,
                 frontMobile: req.body.mobileNumber
             },
@@ -150,8 +149,7 @@ const addRestuarant = async (req, res, next) => {
             imageFile: req.body.featuredImage,
             addressLineFirst: req.body.firstAddressLine,
             addressLineSecond: req.body.secondAddressLine,
-            city: req.body.city,
-            state: req.body.state,
+            location: req.body.location,
             landMobile: req.body.lanLine,
             frontMobile: req.body.mobileNumber
         }

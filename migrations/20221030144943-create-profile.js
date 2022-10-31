@@ -2,38 +2,32 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Restuarants', {
+    await queryInterface.createTable('Profiles', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      sellerId: {
+      userId: {
         type: Sequelize.INTEGER
       },
-      restuarantName: {
+      fullName: {
         type: Sequelize.STRING
       },
-      description: {
+      emailAddress: {
         type: Sequelize.STRING
       },
-      imageFile: {
-        type: Sequelize.STRING.BINARY
-      },
-      addressLineFirst: {
-        type: Sequelize.STRING
-      },
-      addressLineSecond: {
+      mobileNumber: {
         type: Sequelize.STRING
       },
       location: {
         type: Sequelize.STRING
       },
-      landMobile: {
-        type: Sequelize.STRING
+      profileImage: {
+        type: Sequelize.STRING.BINARY
       },
-      frontMobile: {
+      role: {
         type: Sequelize.STRING
       },
       createdAt: {
@@ -47,6 +41,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Restuarants');
+    await queryInterface.dropTable('Profiles');
   }
 };
