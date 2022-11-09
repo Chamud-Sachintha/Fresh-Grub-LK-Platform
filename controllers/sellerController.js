@@ -1,5 +1,6 @@
-const { QueryTypes,Sequelize } = require('sequelize');
+const { QueryTypes, Sequelize } = require('sequelize');
 const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/fresh_grub_lk')
+const Op = Sequelize.Op;
 
 const bycrypt = require('bcrypt')
 const db = require("../models")
@@ -77,7 +78,7 @@ const updateRestuarantrByRestuarantId = async (req, res, next) => {
         const restuarantId = req.query.restuarantId;
 
         const updateRestuarantDetails = await Restuarant.update(
-            { 
+            {
                 sellerId: parseInt(req.body.sellerId),
                 restuarantName: req.body.restuarantName,
                 description: req.body.restuarantDescription,
@@ -88,11 +89,11 @@ const updateRestuarantrByRestuarantId = async (req, res, next) => {
                 landMobile: req.body.lanLine,
                 frontMobile: req.body.mobileNumber
             },
-            { 
-                where: 
-                { 
-                    id: restuarantId 
-                } 
+            {
+                where:
+                {
+                    id: restuarantId
+                }
             }
         )
 
@@ -150,6 +151,8 @@ const addRestuarant = async (req, res, next) => {
             addressLineFirst: req.body.firstAddressLine,
             addressLineSecond: req.body.secondAddressLine,
             location: req.body.location,
+            lat: req.body.lat,
+            long: req.body.long,
             landMobile: req.body.lanLine,
             frontMobile: req.body.mobileNumber
         }
@@ -165,18 +168,6 @@ const addRestuarant = async (req, res, next) => {
         }
     } catch (err) {
         console.log(err);
-    }
-}
-
-const findRestuarantsBySearchType = async (req, res, next) => {
-    try {
-        const searchType = req.query.searchType;
-
-        if (searchType === "") {
-            
-        }
-    } catch (err) {
-        console.log(err)
     }
 }
 
@@ -198,20 +189,71 @@ const getListOfRestuarantsBySellerId = async (req, res, next) => {
 
 const getListOfRestuarants = async (req, res, next) => {
     try {
+        const latitude = req.query.lat;
+        const longitude = req.query.long;
         const getListOfRestuarants = await Restuarant.findAll();
 
         if (getListOfRestuarants) {
-            return res.send(getListOfRestuarants)
+            const data = checkDistanceBetWeenRestuarantAndCustomer(getListOfRestuarants, latitude, longitude)
+            
+            if (data) {
+                res.send(data);
+            }
         }
     } catch (err) {
         console.log(err);
     }
 }
 
+function checkDistanceBetWeenRestuarantAndCustomer(getListOfRestuarants, latitude, longitude) {
+    try {
+        const data = []
+        for (let eachRestuarant = 0; eachRestuarant < getListOfRestuarants.length; eachRestuarant++) {
+            const lat1 = getListOfRestuarants[eachRestuarant].lat;
+            const long1 = getListOfRestuarants[eachRestuarant].long;
+            const lat2 = latitude;
+            const long2 = longitude;
+
+            const distance = getDistanceBetweenTwoPlaces(lat1, long1, lat2, long2);
+
+            if (distance <= 2) {
+                data.push(getListOfRestuarants[eachRestuarant]);
+            }
+        }
+
+        return data;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+function getDistanceBetweenTwoPlaces(lat1, long1, lat2, long2) {
+    long1 = long1 * Math.PI / 180;
+    long2 = long2 * Math.PI / 180;
+    lat1 = lat1 * Math.PI / 180;
+    lat2 = lat2 * Math.PI / 180;
+
+    // Haversine formula
+    let dlon = long2 - long1;
+    let dlat = lat2 - lat1;
+    let a = Math.pow(Math.sin(dlat / 2), 2)
+        + Math.cos(lat1) * Math.cos(lat2)
+        * Math.pow(Math.sin(dlon / 2), 2);
+
+    let c = 2 * Math.asin(Math.sqrt(a));
+
+    // Radius of earth in kilometers. Use 3956
+    // for miles
+    let r = 6371;
+
+    // calculate the result
+    return (c * r);
+}
+
 const findRestuarantByRestuarantId = async (req, res, next) => {
-    try {   
+    try {
         const restuarantDetails = await Restuarant.findAll({
-            where:{
+            where: {
                 id: req.query.restuarantId
             }
         })
@@ -219,7 +261,34 @@ const findRestuarantByRestuarantId = async (req, res, next) => {
         if (restuarantDetails) {
             return res.send(restuarantDetails)
         }
-    } catch(err) {
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+const findRestuarantsBySearchType = async (req, res, next) => {
+    try {
+        const searchType = req.query.searchType;
+        const searchValue = capitalizeFirstLetter(req.query.searchValue);
+
+        if (searchType === "1") {
+            const restuarantResultSet = await Restuarant.findAll({
+                where: {
+                    restuarantName: {
+                        [Op.like]: `%${searchValue}%` 
+                    }
+                }
+            })
+
+            if (restuarantResultSet) {
+                res.send(restuarantResultSet)
+            }
+        }
+    } catch (err) {
         console.log(err);
     }
 }
@@ -232,6 +301,6 @@ module.exports = {
     getListOfRestuarantsBySellerId,
     findRestuarantByRestuarantId,
     updateRestuarantrByRestuarantId,
-    findRestuarantsBySearchType,
-    deleteSelectedRestuarantByRestuarantId
+    deleteSelectedRestuarantByRestuarantId,
+    findRestuarantsBySearchType
 };

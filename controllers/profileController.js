@@ -13,8 +13,10 @@ const addNewProfileDetails = async (req, res, next) => {
             emailAddress: req.body.emailAddress,
             mobileNumber: req.body.mobileNumber,
             location: req.body.location,
+            lat: req.body.lat,
+            long: req.body.long,
             profileImage: req.body.profileImage,
-            role: req.query.role
+            role: req.body.role
         }
 
         const createProfileImageDetails = await Profile.create(data);
@@ -30,10 +32,12 @@ const addNewProfileDetails = async (req, res, next) => {
 const getProfileDetailsByUserId = async (req, res, next) => {
     try {
         const userId = req.query.userId;
+        const userRole = req.query.role;
 
         const getProfileDetails = await Profile.findAll({
             where: {
-                userId: userId
+                userId: userId,
+                role: userRole
             }
         })
 

@@ -4,7 +4,8 @@ const {
     addNewEatable,
     getAllEatablesBySellerId,
     getEatablesBelongsToRestuarant,
-    getEatableDetailsByEatableId
+    getEatableDetailsByEatableId,
+    getEatablesByOrderId
 } = eatableController
 const router = express.Router()
 
@@ -15,5 +16,7 @@ router.get('/getAllEatablesBySellerId', getAllEatablesBySellerId)
 router.get('/getEatablesBelongsToRestuarant', getEatablesBelongsToRestuarant)
 
 router.get('/getEatableDetailsByEatableId', getEatableDetailsByEatableId)
+
+router.get('/getEatablesByOrderId', getEatablesByOrderId)
 
 module.exports =  router 

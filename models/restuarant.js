@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     addressLineFirst: DataTypes.STRING,
     addressLineSecond: DataTypes.STRING,
     location: DataTypes.STRING,
+    lat: DataTypes.STRING,
+    long: DataTypes.STRING,
     landMobile: DataTypes.STRING,
     frontMobile: DataTypes.STRING
   }, {

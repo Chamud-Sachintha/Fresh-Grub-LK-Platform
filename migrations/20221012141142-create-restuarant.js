@@ -30,6 +30,12 @@ module.exports = {
       location: {
         type: Sequelize.STRING
       },
+      lat: {
+        type: Sequelize.STRING
+      },
+      long: {
+        type: Sequelize.STRING
+      },
       landMobile: {
         type: Sequelize.STRING
       },

@@ -5,6 +5,24 @@ const db = require("../models")
 const Eatable = db.Eatable
 const RestuarantEatble = db.RetuarantEatabl
 
+const getEatablesByOrderId = async (req, res, next) => {
+    try {
+        const eatableDetailsByOrderId = await sequelize.query(
+            'SELECT * FROM "public"."Eatables" JOIN "public"."OrderDetails" ON "public"."Eatables"."id" = "public"."OrderDetails"."eatableId" JOIN "public"."Orders" ON "public"."Orders"."id" = "public"."OrderDetails"."orderId" WHERE "public"."OrderDetails"."orderId" = :orderId',
+            {
+                replacements: { orderId: req.query.orderId },
+                type: QueryTypes.SELECT
+            }
+        )
+
+        if (eatableDetailsByOrderId) {
+            res.send(eatableDetailsByOrderId);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 const addNewEatable = async (req, res, next) => {
     try {
         const getRequestData = {
@@ -110,5 +128,6 @@ module.exports = {
     addNewEatable,
     getAllEatablesBySellerId,
     getEatablesBelongsToRestuarant,
-    getEatableDetailsByEatableId
+    getEatableDetailsByEatableId,
+    getEatablesByOrderId
 }
