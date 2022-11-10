@@ -287,6 +287,18 @@ const findRestuarantsBySearchType = async (req, res, next) => {
             if (restuarantResultSet) {
                 res.send(restuarantResultSet)
             }
+        } else if (searchType === "2") {
+            const restuarantResultSet = await sequelize.query(
+                'SELECT * FROM "public"."Restuarants" JOIN "public"."RetuarantEatabls" ON "public"."Restuarants"."id" = "public"."RetuarantEatabls"."restuarantId" WHERE "public"."RetuarantEatabls"."eatableId" IN (SELECT "public"."Eatables"."id" FROM "public"."Eatables" WHERE "public"."Eatables"."eatableName" LIKE :searchValue)',
+                {
+                    replacements: { searchValue: `%${searchValue}%` },
+                    type: QueryTypes.SELECT
+                }
+            )
+
+            if (restuarantResultSet) {
+                res.status(200).send(restuarantResultSet);
+            }
         }
     } catch (err) {
         console.log(err);

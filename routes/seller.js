@@ -26,7 +26,7 @@ const router = express.Router()
 
 //signup endpoint
 //passing the middleware function to the signup
-router.post('/signup', userAuth.saveUser, signUp)
+router.post('/signup', signUp)
 
 //login route
 router.post('/login', login )

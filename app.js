@@ -35,6 +35,7 @@ try {
 var indexRouter = require('./routes/index');
 var customerRouter = require('./routes/customer');
 var sellerRouter = require('./routes/seller');
+var driverRouter = require('./routes/driver');
 var categoryRouter = require('./routes/category');
 var eatableRouter = require('./routes/eatable');
 var profileRouter = require('./routes/profile');
@@ -60,6 +61,7 @@ app.use(cors({
 app.use('/', indexRouter);
 app.use('/customer', customerRouter);
 app.use('/seller', sellerRouter);
+app.use('/driver', driverRouter);
 app.use('/category', categoryRouter);
 app.use('/eatable', eatableRouter);
 app.use('/profile', profileRouter);

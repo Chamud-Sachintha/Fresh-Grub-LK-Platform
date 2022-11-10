@@ -1,18 +1,36 @@
 const express = require('express');
 const models = require('../models');
 
-const User = models.Customer;
+const Driver = models.Driver;
 
-const saveUser = async (req, res, next) => {
+const checkSellerRegDetails = async (req, res, next) => {
     try {
-        const emailAddress = await User.findOne({
-            where: {
-                emailAddress: req.body.emailAddress
-            }
-        });
 
-        if (emailAddress) {
-            return res.json(409).send("Email Already Taken.");
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const checkCustomerRegDetails = async (req, res, next) => {
+    try {
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const checkDriverRegDetails = async (req, res, next) => {
+    try {
+        const emailAddress = req.body.emailAddress;
+
+        const checkEmailValidity = await Driver.findAll({
+            where: {
+                emailAddress: emailAddress
+            }
+        })
+
+        if (checkEmailValidity) {
+            res.json(400).send("Member Already Registred.");
         }
 
         next();
@@ -21,4 +39,6 @@ const saveUser = async (req, res, next) => {
     }
 }
 
-module.exports = { saveUser };
+module.exports = { 
+    checkDriverRegDetails 
+};

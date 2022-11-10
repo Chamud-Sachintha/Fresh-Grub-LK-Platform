@@ -1,5 +1,6 @@
 const { QueryTypes,Sequelize } = require('sequelize');
 const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/fresh_grub_lk')
+const Op = Sequelize.Op;
 const db = require("../models")
 
 const Eatable = db.Eatable
@@ -124,10 +125,40 @@ const getEatableDetailsByEatableId = async (req, res, next) => {
     }
 }
 
+const getEatableBySearchType = async (req, res, next) => {
+    try {
+        const searchType = req.query.searchType;
+        const searchValue = req.query.searchValue;
+
+        if (searchType === "1") {
+            const getEatableResultSet = await Eatable.findAll({
+                where: {
+                    eatableName: {
+                        [Op.like]: `%${searchValue}%` 
+                    }
+                }
+            })
+
+            if (getEatableResultSet) {
+                res.send(getEatableResultSet)
+            }
+        } else if (searchType === "2") {
+
+        } else if (searchType === "3") {
+
+        } else {
+
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     addNewEatable,
     getAllEatablesBySellerId,
     getEatablesBelongsToRestuarant,
     getEatableDetailsByEatableId,
-    getEatablesByOrderId
+    getEatablesByOrderId,
+    getEatableBySearchType
 }
