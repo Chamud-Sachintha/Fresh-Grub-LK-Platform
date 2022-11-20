@@ -1,4 +1,5 @@
 const { QueryTypes,Sequelize } = require('sequelize');
+const { seller } = require('../models');
 const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/fresh_grub_lk')
 const Op = Sequelize.Op;
 const db = require("../models")
@@ -125,29 +126,77 @@ const getEatableDetailsByEatableId = async (req, res, next) => {
     }
 }
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 const getEatableBySearchType = async (req, res, next) => {
     try {
+        const sellerId = req.query.sellerId;
         const searchType = req.query.searchType;
-        const searchValue = req.query.searchValue;
+        const searchValue = capitalizeFirstLetter(req.query.searchValue);
 
         if (searchType === "1") {
-            const getEatableResultSet = await Eatable.findAll({
-                where: {
-                    eatableName: {
-                        [Op.like]: `%${searchValue}%` 
-                    }
+            const getEatableResultSet = await sequelize.query(
+                'SELECT * FROM "public"."Eatables" JOIN "public"."Categories" ON "public"."Eatables"."categoryId" = "public"."Categories"."id" WHERE "public"."Categories"."sellerId" = :sellerId AND "public"."Eatables"."eatableName" LIKE :searchValue',
+                {
+                    replacements: { sellerId: sellerId, searchValue: `%${searchValue}%` },
+                    type: QueryTypes.SELECT
                 }
-            })
+            )
 
             if (getEatableResultSet) {
                 res.send(getEatableResultSet)
             }
         } else if (searchType === "2") {
+            const getEatableResultSet = await sequelize.query(
+                'SELECT * FROM "public"."Eatables" JOIN "public"."RetuarantEatabls" ON "public"."Eatables"."id" = "public"."RetuarantEatabls"."eatableId" WHERE "public"."Eatables"."id" IN (SELECT "public"."RetuarantEatabls"."eatableId" FROM "public"."RetuarantEatabls" WHERE "public"."RetuarantEatabls"."restuarantId" = :restuarantId)',
+                {
+                    replacements: { restuarantId: searchValue },
+                    type: QueryTypes.SELECT
+                }
+            )
+
+            if (getEatableResultSet) {
+                res.send(getEatableResultSet)
+            }
 
         } else if (searchType === "3") {
+            const getEatableResultSet = await sequelize.query(
+                'SELECT * FROM "public"."Eatables" JOIN "public"."Categories" ON "public"."Eatables"."categoryId" = "public"."Categories"."id" WHERE "public"."Categories"."id" = :categoryId',
+                {
+                    replacements: { categoryId: searchValue },
+                    type: QueryTypes.SELECT
+                }
+            )
 
+            if (getEatableResultSet) {
+                res.send(getEatableResultSet)
+            }
         } else {
 
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const getEatableByCustomerSearchType = async (req, res, next) => {
+    try {
+        const restuarantId = req.query.restuarantId;
+        const searchCategory = req.query.searchCategory;
+        const searchValue = req.query.searchValue;
+
+        const getEatableResultSet = await sequelize.query(
+            'SELECT * FROM "public"."Eatables" JOIN "public"."Categories" ON "public"."Eatables"."categoryId" = "public"."Categories"."id" WHERE "public"."Categories"."id" = :categoryId AND "public"."Eatables"."eatableName" LIKE :eatableName AND "public"."Eatables"."id" IN (select "public"."RetuarantEatabls"."eatableId" FROM "public"."RetuarantEatabls" WHERE "public"."RetuarantEatabls"."restuarantId" = :restuarantId)',
+            {
+                replacements: { categoryId: searchCategory, eatableName: `%${searchValue}%`, restuarantId: restuarantId },
+                type: QueryTypes.SELECT
+            }
+        )
+
+        if (getEatableResultSet) {
+            res.send(getEatableResultSet)
         }
     } catch (err) {
         console.log(err);
@@ -160,5 +209,6 @@ module.exports = {
     getEatablesBelongsToRestuarant,
     getEatableDetailsByEatableId,
     getEatablesByOrderId,
+    getEatableByCustomerSearchType,
     getEatableBySearchType
 }
