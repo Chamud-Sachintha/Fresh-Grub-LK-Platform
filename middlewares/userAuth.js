@@ -29,7 +29,7 @@ const checkDriverRegDetails = async (req, res, next) => {
             }
         })
 
-        if (checkEmailValidity) {
+        if (checkEmailValidity.length !== 0) {
             res.json(400).send("Member Already Registred.");
         }
 
