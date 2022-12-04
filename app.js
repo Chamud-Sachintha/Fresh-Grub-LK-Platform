@@ -39,6 +39,7 @@ var driverRouter = require('./routes/driver');
 var categoryRouter = require('./routes/category');
 var eatableRouter = require('./routes/eatable');
 var profileRouter = require('./routes/profile');
+var commonDetails = require('./routes/common');
 
 var app = express();
 
@@ -65,6 +66,7 @@ app.use('/driver', driverRouter);
 app.use('/category', categoryRouter);
 app.use('/eatable', eatableRouter);
 app.use('/profile', profileRouter);
+app.use('/common', commonDetails)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

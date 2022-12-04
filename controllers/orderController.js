@@ -76,9 +76,9 @@ const getOnGoingOrderRequestByEachSeller = async (req, res, next) => {
         const sellerId = req.query.sellerId;
 
         const getAllOnGoingOrdersBySeller = await sequelize.query(
-            'SELECT DISTINCT("public"."Restuarants"."restuarantName"),"public"."Restuarants"."imageFile", "public"."Orders"."subTotal", "public"."Orders"."orderStatus", "public"."Restuarants"."id" AS "RestuarantId", "public"."OrderDetails"."orderId" FROM "public"."Orders" join "public"."OrderDetails" ON "public"."Orders"."id" = "public"."OrderDetails"."orderId" JOIN "public"."RetuarantEatabls" ON "public"."RetuarantEatabls"."eatableId" = "public"."OrderDetails"."eatableId" JOIN "public"."Restuarants" ON "public"."Restuarants"."id" = "public"."RetuarantEatabls"."restuarantId" WHERE "public"."Restuarants"."sellerId" = :sellerId AND "public"."Orders"."orderStatus" = :orderStatus',
+            'SELECT DISTINCT("public"."Restuarants"."restuarantName"),"public"."Restuarants"."imageFile", "public"."Orders"."subTotal", "public"."Orders"."orderStatus", "public"."Restuarants"."id" AS "RestuarantId", "public"."OrderDetails"."orderId" FROM "public"."Orders" join "public"."OrderDetails" ON "public"."Orders"."id" = "public"."OrderDetails"."orderId" JOIN "public"."RetuarantEatabls" ON "public"."RetuarantEatabls"."eatableId" = "public"."OrderDetails"."eatableId" JOIN "public"."Restuarants" ON "public"."Restuarants"."id" = "public"."RetuarantEatabls"."restuarantId" WHERE "public"."Restuarants"."sellerId" = :sellerId AND "public"."Orders"."orderStatus" != :orderStatus',
             {
-                replacements: { sellerId: sellerId, orderStatus: "PRE" },
+                replacements: { sellerId: sellerId, orderStatus: "PEN" },
                 type: QueryTypes.SELECT
             }
         );

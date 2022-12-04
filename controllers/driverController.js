@@ -7,6 +7,9 @@ const db = require("../models")
 const jwt = require('jsonwebtoken');
 
 const Driver = db.Driver;
+const Customer = db.Customer;
+const Profile = db.Profile;
+const DriverAssign = db.DriverAssign;
 
 const signUp = async (req, res, next) => {
     try {
@@ -70,7 +73,97 @@ const login = async (req, res) => {
     }
 }
 
+const assignDriverToOrderRequest = async (req, res, next) => {
+    let isDriverAssign = false
+    let driverCount = 0
+    lat1 = req.query.latitudeOfRestuarant
+    long1 = req.query.longitudeOfRestuarant
+
+    try {
+        let driverData = {};
+        const getDrivers = await Profile.findAll({
+            where: {
+                role: "D"
+            }
+        })
+
+        for (let eachDriver = 0; eachDriver < getDrivers.length; eachDriver++) {
+            const distance = getDistanceBetweenTwoPlaces(lat1, long1, getDrivers[eachDriver].dataValues.lat, getDrivers[eachDriver].dataValues.long);
+            
+            if (distance < 2) {
+                driverData = { id: getDrivers[eachDriver].dataValues.userId, distance: distance }
+            }
+        }
+
+        const sortable = Object.fromEntries(
+            Object.entries(driverData).sort(([,a],[,b]) => a-b)
+        );
+
+        if (Object.entries(driverData).length > 0) {
+            for (let eachDriver = 0; eachDriver < getDrivers.length; eachDriver++) {
+                const driverAssignValidator = await DriverAssign.findOne({
+                    where: {
+                        userId: sortable.id
+                    }
+                })
+                
+                if (driverAssignValidator == null) {
+                    const data = {
+                        userId: sortable.id,
+                        status: "A"
+                    }
+    
+                    const assignDriverForDeliver = await DriverAssign.create(data)
+    
+                    if (assignDriverForDeliver) {
+                        isDriverAssign = true
+                        res.send("Driver Assign Successfully.")
+                    }
+                } else {
+                    continue
+                }
+    
+                driverCount += 1;
+            }
+    
+            if (driverCount === getDrivers.length && isDriverAssign == false) {
+                driverCount = 0;
+                isDriverAssign = false;
+                res.send("All Drivers are Busy Please wait...")
+            }
+        } else {
+            res.send("No Drivers Near Restuarant Wait...");
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+function getDistanceBetweenTwoPlaces(lat1, long1, lat2, long2) {
+    long1 = long1 * Math.PI / 180;
+    long2 = long2 * Math.PI / 180;
+    lat1 = lat1 * Math.PI / 180;
+    lat2 = lat2 * Math.PI / 180;
+
+    // Haversine formula
+    let dlon = long2 - long1;
+    let dlat = lat2 - lat1;
+    let a = Math.pow(Math.sin(dlat / 2), 2)
+        + Math.cos(lat1) * Math.cos(lat2)
+        * Math.pow(Math.sin(dlon / 2), 2);
+
+    let c = 2 * Math.asin(Math.sqrt(a));
+
+    // Radius of earth in kilometers. Use 3956
+    // for miles
+    let r = 6371;
+
+    // calculate the result
+    return (c * r);
+}
+
 module.exports = {
     signUp,
-    login
+    login,
+    assignDriverToOrderRequest
 }

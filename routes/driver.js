@@ -5,12 +5,14 @@ const userAuth = require('../middlewares/userAuth')
 const router = express.Router()
 const { 
     signUp, 
-    login, 
+    login,
+    assignDriverToOrderRequest 
 } = driverController
 
 router.post('/signup',userAuth.checkDriverRegDetails, signUp)
 
-//login route
 router.post('/login', login )
+
+router.get('/asign/driver', assignDriverToOrderRequest)
 
 module.exports = router
