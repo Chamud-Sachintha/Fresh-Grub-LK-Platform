@@ -6,6 +6,7 @@ const {
     signup, 
     login, 
     getCategoriesOfSelectedRestuarant,
+    getAssignedDriverForOrderByOrderId,
     test 
 } = userController
 
@@ -44,6 +45,8 @@ router.get('/getAllCartItemsByCustomerAndEachCart/search', getAllCartItemsByCust
 router.post('/placeOrder', placeNewOrderDetailsByCustomer)
 
 router.get('/getAllOrdersByCustomer', getAllOrdersByCustomerId)
+
+router.get('/search/getAssignedDriverForOrderByOrderId', getAssignedDriverForOrderByOrderId)
 
 router.get('/jj', jwtValidator.validJWTNeeded, test)
 

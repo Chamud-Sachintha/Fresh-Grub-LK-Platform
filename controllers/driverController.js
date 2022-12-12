@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 
 const Driver = db.Driver;
 const Customer = db.Customer;
+const Order = db.Order;
 const Profile = db.Profile;
 const DriverAssign = db.DriverAssign;
 
@@ -78,6 +79,7 @@ const assignDriverToOrderRequest = async (req, res, next) => {
     let driverCount = 0
     lat1 = req.query.latitudeOfRestuarant
     long1 = req.query.longitudeOfRestuarant
+    orderId = req.query.orderId
 
     try {
         let driverData = {};
@@ -103,21 +105,25 @@ const assignDriverToOrderRequest = async (req, res, next) => {
             for (let eachDriver = 0; eachDriver < getDrivers.length; eachDriver++) {
                 const driverAssignValidator = await DriverAssign.findOne({
                     where: {
-                        userId: sortable.id
+                        userId: sortable.id,
+                        status: 'A'
                     }
                 })
                 
                 if (driverAssignValidator == null) {
                     const data = {
                         userId: sortable.id,
-                        status: "A"
+                        status: "A",
+                        orderId: orderId,
+                        orderDeliveryStatus: "ND"
                     }
     
                     const assignDriverForDeliver = await DriverAssign.create(data)
     
                     if (assignDriverForDeliver) {
                         isDriverAssign = true
-                        res.send("Driver Assign Successfully.")
+                        updateOrderStatusByRestuarantId(orderId, "D")
+                        res.send(assignDriverForDeliver)
                     }
                 } else {
                     continue
@@ -133,6 +139,168 @@ const assignDriverToOrderRequest = async (req, res, next) => {
             }
         } else {
             res.send("No Drivers Near Restuarant Wait...");
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const getAssignedDriverDetails = async (req, res, next) => {
+    try {
+        const orderId = req.query.orderId
+
+        const getAssignedDriver = await DriverAssign.findOne({
+            where: {
+                orderId: orderId
+            }
+        })
+
+        if (getAssignedDriver) {
+            const getDriverDetails = await Profile.findOne({
+                where: {
+                    userId: getAssignedDriver.dataValues.userId
+                }
+            })
+
+            res.send(getDriverDetails)
+        } else {
+            res.send(getAssignedDriver)
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const getAvailableDeliveryRequestsByDriverId = async (req, res, next) => {
+    try {
+        const driverId = req.query.userId
+
+        const getSelectedEatablesByRestuarant = await sequelize.query(
+            'SELECT r."restuarantName", r."location", r."landMobile", o."subTotal", o."orderStatus" , o."id" from "public"."Restuarants" r join "public"."Orders" o on r."id" = o."restuarantId" join "public"."DriverAssigns" d on d."orderId" = o."id" and d."userId" = :userId d."status"= :status',
+            {
+                replacements: { userId: driverId, status: 'A' },
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if (getSelectedEatablesByRestuarant) {
+            res.send(getSelectedEatablesByRestuarant)
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const getDeliveryRequestDetailsByOrderId = async (req, res, next) => {
+    try {
+        const orderId = req.query.orderId;
+
+        const getDeliveryRequestDetails = await sequelize.query(
+            'SELECT r."restuarantName", r."imageFile", r."location", r."landMobile", q."fullName", q."profileImage" as "profileImage", q."location" as "cutomerLocation", q."mobileNumber" FROM "public"."Restuarants" r JOIN "public"."Orders" o ON r."id" = o."restuarantId" join "public"."Profiles" q on o."userId" = q."id" and o."id" = :orderId',
+            {
+                replacements: { orderId: orderId },
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if (getDeliveryRequestDetails) {
+            res.send(getDeliveryRequestDetails)
+        } 
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const getDeliveryRequestStatusByOrderId = async (req, res, next) => {
+    try {
+        const orderId = req.query.orderId;
+
+        const deliveryRequestStatus = await DriverAssign.findOne({
+            where: {
+                orderId: orderId
+            }
+        })
+
+        if (deliveryRequestStatus) {
+            res.send(deliveryRequestStatus)
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const updateDeliveryStatusByOrderId = async (req, res, next) => {
+    try {
+        const orderId = req.query.orderId;
+        const deliveryStatus = req.query.deliveryStatus;
+
+        if (deliveryStatus == "D") {
+            const setDeliveryStatus = await DriverAssign.update(
+                {
+                    status: "UA"
+                },
+                {
+                    where: {
+                        orderId: orderId
+                    }
+                }
+            );
+        }
+
+        const updateDeliveryDetailsTable = await DriverAssign.update(
+            {
+                orderDeliveryStatus: deliveryStatus
+            },
+            {
+                where: {
+                    orderId: orderId
+                }
+            }
+        );
+
+        if (updateDeliveryDetailsTable) {
+            res.send(updateDeliveryDetailsTable)
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const getCompletedDeleveryRequestByDriverId = async (req, res, next) => {
+    try {
+        const driverId = req.query.driverId;
+
+        const getCompletedDeliveryRequests = await sequelize.query(
+            'SELECT * FROM "public"."DriverAssigns" d JOIN "public"."Orders" o ON d."orderId" = o."id" JOIN "public"."Restuarants" r ON r."id" = o."restuarantId" where d."userId" = :driverId and d."orderDeliveryStatus" = :deliveryStatus',
+            {
+                replacements: { driverId: driverId, deliveryStatus: 'D' },
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if (getCompletedDeliveryRequests) {
+            res.send(getCompletedDeliveryRequests)
+        } 
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+async function updateOrderStatusByRestuarantId(orderId, orderStatus) {
+    try {
+        const updateOrderStatus = await Order.update(
+            {
+                orderStatus: orderStatus
+            },
+            {
+                where: {
+                    id: orderId
+                }
+            }
+        );
+
+        if (updateOrderStatus) {
+            res.send("Operation Complete Successfully.");
         }
     } catch (err) {
         console.log(err);
@@ -165,5 +333,11 @@ function getDistanceBetweenTwoPlaces(lat1, long1, lat2, long2) {
 module.exports = {
     signUp,
     login,
-    assignDriverToOrderRequest
+    assignDriverToOrderRequest,
+    getAssignedDriverDetails,
+    getAvailableDeliveryRequestsByDriverId,
+    getDeliveryRequestDetailsByOrderId,
+    updateDeliveryStatusByOrderId,
+    getDeliveryRequestStatusByOrderId,
+    getCompletedDeleveryRequestByDriverId
 }

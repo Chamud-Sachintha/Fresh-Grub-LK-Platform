@@ -100,6 +100,26 @@ const getCategoriesOfSelectedRestuarant = async (req, res, next) => {
     }
 }
 
+const getAssignedDriverForOrderByOrderId = async (req, res, next) => {
+    try {
+        const orderId = req.query.orderId;
+
+        const getDriverDetails = await sequelize.query(
+            'SELECT * FROM "public"."DriverAssigns" d JOIN "public"."Profiles" q ON d."userId" = q."userId" where d."orderId" = :orderId AND d."orderDeliveryStatus" = :orderStatus',
+            {
+                replacements: { orderId: orderId, orderStatus: 'D' },
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if (getDriverDetails) {
+            res.send(getDriverDetails);
+        } 
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 const test = async (req, res, next) => {
     res.send("hellow");
 }
@@ -108,5 +128,6 @@ module.exports = {
     signup,
     login,
     test,
-    getCategoriesOfSelectedRestuarant
+    getCategoriesOfSelectedRestuarant,
+    getAssignedDriverForOrderByOrderId
 };

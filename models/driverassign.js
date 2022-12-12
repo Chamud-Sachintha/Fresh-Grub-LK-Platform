@@ -15,7 +15,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   DriverAssign.init({
     userId: DataTypes.INTEGER,
-    status: DataTypes.STRING
+    status: DataTypes.STRING,
+    orderId: DataTypes.INTEGER,
+    orderDeliveryStatus: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'DriverAssign',
