@@ -7,6 +7,8 @@ const {
     login, 
     getCategoriesOfSelectedRestuarant,
     getAssignedDriverForOrderByOrderId,
+    provideRatingtByTypeAndId,
+    isProvideRatingForOrder,
     test 
 } = userController
 
@@ -47,6 +49,10 @@ router.post('/placeOrder', placeNewOrderDetailsByCustomer)
 router.get('/getAllOrdersByCustomer', getAllOrdersByCustomerId)
 
 router.get('/search/getAssignedDriverForOrderByOrderId', getAssignedDriverForOrderByOrderId)
+
+router.post('/provideRatingForRestuarant', provideRatingtByTypeAndId)
+
+router.get('/getRestuarantRatingByOrderId', isProvideRatingForOrder);
 
 router.get('/jj', jwtValidator.validJWTNeeded, test)
 

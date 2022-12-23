@@ -6,6 +6,7 @@ const db = require("../models");
 const jwt = require("jsonwebtoken");
 
 const Customer = db.Customer;
+const Rating = db.Rating;
 
 //signing a user up
 //hashing users password before its saved to the database with bcrypt
@@ -120,6 +121,52 @@ const getAssignedDriverForOrderByOrderId = async (req, res, next) => {
     }
 }
 
+const provideRatingtByTypeAndId = async (req, res, next) => {
+    try {
+        const ratingValue = req.body.ratingValue;
+        const ratingTypeSec = req.body.ratingTypeSec;
+        const ratingType = req.body.ratingType;
+        const orderId = req.body.orderId;
+
+        const data = {
+            ratingType: ratingType,
+            ratingTypeSec: ratingTypeSec,
+            ratingValue: ratingValue,
+            orderId: orderId
+        }
+
+        const createRatingForRestuarant = await Rating.create(data);
+
+        if (createRatingForRestuarant) {
+            res.send(createRatingForRestuarant);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const isProvideRatingForOrder = async (req, res, next) => {
+    try {
+        const ordereId = req.query.orderId;
+        const ratingType = req.query.ratingType;
+
+        const getRatingData = await Rating.findAll({
+            where: {
+                orderId: ordereId,
+                ratingType: ratingType
+            }
+        })
+
+        if (getRatingData.length == 0) {
+            return res.send(true);
+        } else {
+            return res.send(false);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 const test = async (req, res, next) => {
     res.send("hellow");
 }
@@ -129,5 +176,7 @@ module.exports = {
     login,
     test,
     getCategoriesOfSelectedRestuarant,
-    getAssignedDriverForOrderByOrderId
+    getAssignedDriverForOrderByOrderId,
+    provideRatingtByTypeAndId,
+    isProvideRatingForOrder
 };
